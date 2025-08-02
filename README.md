@@ -1,54 +1,53 @@
-# 🏠 Airbnb Analytics DW: Pipeline de Dados com SQL, PostgreSQL e Power BI
+# 🏠 Projeto Airbnb Analytics DW – Ingestão com Python, PostgreSQL e Visualização com Power BI
 
-Este projeto simula uma arquitetura moderna de dados baseada no conceito **medalhão (Bronze, Silver e Gold)** utilizando dados públicos de hospedagens no Airbnb no Rio de Janeiro. O objetivo é construir um **Data Warehouse completo**, praticar **técnicas de SQL do básico ao avançado**, e apresentar os resultados em **dashboards interativos no Power BI**.
-
----
-
-## 🎯 Objetivo
-
-- Criar um pipeline de dados completo com ingestão, tratamento, modelagem e visualização.
-- Aplicar boas práticas de engenharia de dados com arquitetura em camadas.
-- Praticar consultas SQL complexas e modelagem dimensional.
-- Explorar insights sobre padrões de locação, precificação e comportamento de anfitriões.
+Este projeto simula um pipeline de dados completo para análise de hospedagens no Airbnb no Rio de Janeiro. A estrutura segue o padrão **medalhão (Bronze, Silver e Gold)** com armazenamento em **PostgreSQL**, ingestão via **Python** e visualização em **Power BI**.
 
 ---
 
-## 🧱 Arquitetura do Projeto
+## 🎯 Objetivo Geral
 
-O projeto segue a arquitetura de dados em camadas:
+- Construir um pipeline moderno de dados.
+- Utilizar boas práticas de **engenharia de dados**, **modelagem dimensional** e **Data viz**
+- Praticar SQL do básico ao avançado com dados reais.
+- Entregar **insights visuais** usando Power BI.
+
+---
+
+## 🧱 Arquitetura em Camadas
 
 ```mermaid
 graph TD
-  A[CSV Original (dados brutos)] --> B[Bronze: Ingestão dos dados no PostgreSQL]
-  B --> C[Silver: Tratamento e padronização]
-  C --> D[Gold: Modelagem dimensional para análise]
-  D --> E[Power BI: Visualização e KPIs]
+  A[CSV Original - Airbnb] --> B[Camada Bronze (Raw no PostgreSQL)]
+  B --> C[Camada Silver (Transformações e Limpeza)]
+  C --> D[Camada Gold (Modelagem Dimensional)]
+  D --> E[Power BI - Dashboard Analítico]
 ```
 
-### 🔹 Bronze
-- Dados crus importados diretamente do CSV sem tratamento.
-- Armazenados como estão para rastreabilidade e auditoria.
-
-### 🔸 Silver
-- Dados limpos, convertidos, padronizados e enriquecidos.
-- Separação de dimensões como bairro, tipo de propriedade, etc.
-
-### 🟡 Gold
-- Tabelas de fato e dimensões criadas para análise com BI.
-- Agregações e modelos otimizados para consumo no Power BI.
+- **Bronze**: Ingestão bruta dos arquivos `.csv` originais.
+- **Silver**: Limpeza, normalização e padronização dos dados.
+- **Gold**: Criação de tabelas fato e dimensões otimizadas para análise.
 
 ---
 
-## 🧰 Tecnologias Utilizadas
+## 🛠️ Principais Tecnologias
 
-| Tecnologia         | Finalidade                                 |
-|--------------------|---------------------------------------------|
-| **PostgreSQL**     | Armazenamento e transformação dos dados     |
-| **Python (pandas)**| Ingestão e conexão com banco de dados       |
-| **Jupyter Notebook** | Documentação interativa e ETL com Python |
-| **SQL**            | Transformações, modelagem e análises        |
-| **Power BI**       | Visualização de dados e geração de dashboards |
-| **VS Code**        | Edição e organização do projeto              |
+| Tecnologia      | Finalidade                                    |
+|-----------------|-----------------------------------------------|
+| **PostgreSQL**  | Armazenamento e modelagem de dados            |
+| **Python**      | Ingestão automatizada com `pandas` e `psycopg2` |
+| **SQL**         | Transformações, análises e criação de ERDs    |
+| **Power BI**    | Visualização de KPIs e painéis interativos    |
+| **VS Code**     | Edição de scripts, versionamento e organização |
+| **dotenv**      | Gerenciamento seguro de credenciais           |
+
+---
+
+## ⚙️ Pipeline de Ingestão
+
+- **Arquivos CSV originais** são armazenados em `/dados/row/`.
+- Utiliza `psycopg2` com `execute_batch` para ingestão performática.
+- Armazena em diferentes tabelas dentro do schema `bronze` no PostgreSQL.
+- Criação de tabela de controle para **evitar reprocessamento** de arquivos já inseridos.
 
 ---
 
@@ -57,85 +56,74 @@ graph TD
 ```bash
 airbnb-analytics-dw/
 ├── dados/
-│   └── raw/                       # CSV original do Airbnb
-├── notebooks/
-│   ├── 01_bronze_ingestao.ipynb  # Ingestão e persistência no Postgres
-│   ├── 02_silver_tratamento.ipynb# Limpeza e transformação
-│   └── 03_gold_modelagem.ipynb   # Agregações e modelo dimensional
-├── sql/
-│   ├── ddl/                      # Scripts de criação de tabelas
-│   ├── dml/                      # Scripts de transformações
-│   └── consultas/                # SQL para análise de dados
-├── powerbi/
-│   └── airbnb_dashboard.pbix     # Dashboard Power BI
+│   └── row/ 
+│   └── exemplo_amostra.csv                     # Arquivos originais CSV
 ├── scripts/
-│   └── ingestao_csv_postgres.py  # Ingestão dos dados no Postgres
+│   └── extract_load_csv.py      # Script de ingestão com Python
+│   └── .env                     # Credenciais de conexao com banco de dados
+├── sql/
+│   ├── ddl/                      # Criação de tabelas (Bronze/Silver/Gold)
+│        └── 1_DDL_CRIACAO_DE_SCHEMAS_BRONZE_SILVER_GOLD
+│        └── 2_DDL_CRIACAO_TABELAS_BRONZE
+│        └── 2_DDL_CRIACAO_TABELAS_BRONZE│
+│   ├── dml/                      # Scripts de transformação SQL
+│   └── consultas/                # SQL para análises
+├── powerbi/
+│   └── dashboard.pbix            # Dashboard final em Power BI
+├── notebooks/                    # (Opcional) Jupyter para exploração
+├── .env                          # Variáveis de conexão com o banco
 └── README.md
 ```
 
 ---
 
-## 📊 Dashboard Power BI
+## 🔐 Boas Práticas Adotadas
 
-> [Adicione aqui uma imagem ou link do dashboard final assim que estiver concluído]
-
-Principais visualizações:
-- Preço médio por bairro
-- Número de imóveis por tipo de acomodação
-- Correlação entre avaliações e valor da diária
-- Distribuição da disponibilidade por período
+- Uso de `.env` para proteger as credenciais de banco.
+- Scripts organizados por finalidade (ETL, análise, dashboard).
+- Criação de `tabela de controle` para arquivos processados.
+- Uso de **chaves primárias e estrangeiras** com modelagem em **Star Schema**.
+- Separação lógica dos dados nas camadas Bronze, Silver e Gold.
 
 ---
 
-## 📚 Aprendizados Práticos
-
-- Aplicação real da arquitetura **medalhão** em banco relacional.
-- Uso de **SQL avançado** (joins, CTEs, window functions).
-- Modelagem dimensional com **tabelas fato e dimensões**.
-- Criação de um **pipeline de dados moderno** do zero.
-- Integração com **Power BI** para tomada de decisão.
-
----
-
-## 🧪 Exemplos de Consultas SQL
+## 🧪 Exemplo de Query SQL
 
 ```sql
--- Exemplo: preço médio por bairro
-SELECT neighborhood, ROUND(AVG(price), 2) AS avg_price
-FROM silver_listings
-GROUP BY neighborhood
-ORDER BY avg_price DESC;
-```
-
-```sql
--- Top 10 imóveis mais caros com nota máxima
-SELECT name, price, review_scores_rating
-FROM silver_listings
-WHERE review_scores_rating = 100
-ORDER BY price DESC
+-- Top 10 bairros com maior preço médio de diária
+SELECT 
+  bairro, 
+  ROUND(AVG(preco), 2) AS media_preco
+FROM gold_fato_precificacao
+JOIN gold_dim_localizacao USING(fk_anuncio)
+GROUP BY bairro
+ORDER BY media_preco DESC
 LIMIT 10;
 ```
 
 ---
 
-## 📥 Fonte dos Dados
+## 📊 Dashboard no Power BI
 
-- Kaggle: [Airbnb Listings Rio de Janeiro](https://www.kaggle.com/datasets/thaysagomes/rio-airbnb)
+> *[Adicione aqui o link ou print do Power BI assim que estiver pronto]*
+
+### KPIs e Visões:
+- Preço médio por bairro e tipo de acomodação.
+- Distribuição de reviews e avaliações.
+- Mapa com localizações e disponibilidade.
+- Evolução mensal de reservas e comparativos.
 
 ---
 
 ## 👨‍💻 Autor
 
 **Jonathan Almeida**  
-[LinkedIn](https://www.linkedin.com/in/jonathan-mesquita/) • [Portfólio](https://webhool-post-portifolio.amslmd.easypanel.host/)  
-Desenvolvedor de soluções em dados, apaixonado por transformar informação em decisão.  
-Especialista em Python, SQL, Power Platform e BI.
+[LinkedIn](https://www.linkedin.com/in/jonathan-mesquita-3049581b1) • [Portfólio](https://mypersonalportifolio.streamlit.app)  
+
 
 ---
 
-## 💡 Possíveis Expansões Futuras
 
-- Pipeline automatizado com Airflow ou cron.
-- Versão com dbt para controle de transformações.
-- Deploy da camada de dados como API com FastAPI ou Flask.
-- Comparativo de preços entre bairros e sazonalidade.
+## 📦 Fonte dos Dados
+
+- [Airbnb Listings Rio de Janeiro – Kaggle](https://www.kaggle.com/datasets/thaysagomes/rio-airbnb)
