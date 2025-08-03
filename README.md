@@ -17,10 +17,10 @@ Este projeto simula um pipeline de dados completo para análise de hospedagens n
 
 ```mermaid
 graph TD
-  A[CSV Original - Airbnb] --> B[Camada Bronze (Raw no PostgreSQL)]
-  B --> C[Camada Silver (Transformações e Limpeza)]
-  C --> D[Camada Gold (Modelagem Dimensional)]
-  D --> E[Power BI - Dashboard Analítico]
+  A["CSV Original - Airbnb"] --> B["Camada Bronze - Raw no PostgreSQL"]
+  B --> C["Camada Silver - Transformações e Limpeza"]
+  C --> D["Camada Gold - Modelagem Dimensional"]
+  D --> E["Power BI - Dashboard Analítico"]
 ```
 
 - **Bronze**: Ingestão bruta dos arquivos `.csv` originais.
