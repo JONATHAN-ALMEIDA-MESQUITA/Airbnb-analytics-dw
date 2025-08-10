@@ -60,17 +60,16 @@ def load_csv_to_db(df, table, columns, sql):
 
 #Colunas e comando sql para inserir os dados na tabela T_DIM_ANUNCIO
 
-columns_anuncio = ['id','listing_url','scrape_id','last_scraped',
-                   'calendar_last_scraped','name','summary','space','description',
+columns_anuncio = ['id','listing_url','scrape_id','name','summary','space','description',
                    'experiences_offered','neighborhood_overview','notes','transit',
                    'access','interaction','house_rules','picture_url']
 
 
-sql_anuncio = """ INSERT INTO a_bronze."T_DIM_ANUNCIO"(id_anuncio, listing_url, scrape_id, last_scraped,
-                  calendar_last_scraped, name, summary, space,description, experiences_offered, 
+sql_anuncio = """ INSERT INTO a_bronze."T_DIM_ANUNCIO"(id_anuncio, listing_url, scrape_id,
+                  name, summary, space,description, experiences_offered, 
                   neighborhood_overview,notes, transit,
                   access, interaction, house_rules, picture_url)
-                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                   ON CONFLICT (id_anuncio) DO NOTHING
 """
 
@@ -123,12 +122,12 @@ sql_propriedade =""" INSERT INTO a_bronze. "T_DIM_PROPRIEDADE"(fk_anuncio,proper
 #Colunas e comando sql para inserir os dados na tabela T_FATO_PRECIFICACAO
 
 columns_precificacao = ['id','price','security_deposit',
-                        'cleaning_fee','guests_included','extra_people'
+                        'cleaning_fee','guests_included','extra_people', 'last_scraped', 'calendar_last_scraped'
 ]
 
 sql_precificacao = """ INSERT INTO a_bronze. "T_FATO_PRECIFICACAO"(fk_anuncio,price,security_deposit,
-                       cleaning_fee,guests_included,extra_people)
-                       VALUES(%s,%s,%s,	%s,	%s,	%s)
+                       cleaning_fee,guests_included, extra_people, last_scraped, calendar_last_scraped)
+                       VALUES(%s,%s,%s,	%s,	%s,	%s, %s, %s)
 """
 
 #Colunas e comando sql para inserir os dados na tabela T_FATO_AVALIACAO
