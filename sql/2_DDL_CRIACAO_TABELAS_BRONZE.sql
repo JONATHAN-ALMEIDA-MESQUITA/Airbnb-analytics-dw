@@ -31,8 +31,6 @@ CREATE TABLE IF NOT EXISTS a_bronze."T_DIM_ANUNCIO"
     id_anuncio bigint NOT NULL,
     listing_url text COLLATE pg_catalog."default",
     scrape_id bigint,
-    last_scraped date,
-    calendar_last_scraped date,
     name text COLLATE pg_catalog."default",
     summary text COLLATE pg_catalog."default",
     space text COLLATE pg_catalog."default",
@@ -143,6 +141,8 @@ CREATE TABLE IF NOT EXISTS a_bronze."T_FATO_PRECIFICACAO"
     cleaning_fee numeric(10, 2),
     guests_included integer,
     extra_people numeric(10, 2),
+    last_scraped date,
+    calendar_last_scraped date,
     CONSTRAINT "T_FATO_PRECIFICACAO_pkey" PRIMARY KEY (id_preco)
 );
 
@@ -154,7 +154,6 @@ CREATE TABLE IF NOT EXISTS a_bronze.processamento_arquivos
     CONSTRAINT processamento_arquivos_pkey PRIMARY KEY (id),
     CONSTRAINT processamento_arquivos_nome_arquivo_key UNIQUE (nome_arquivo)
 );
-
 
 ALTER TABLE IF EXISTS a_bronze."T_DIM_ANFITRIAO"
     ADD CONSTRAINT "T_DIM_ANFITRIAO_fk_anuncio_fkey" FOREIGN KEY (fk_anuncio)
@@ -204,6 +203,5 @@ ALTER TABLE IF EXISTS a_bronze."T_FATO_PRECIFICACAO"
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
-
 
 END;
