@@ -23,3 +23,84 @@ CREATE TABLE IF NOT EXISTS b_silver."T_DIM_ANUNCIO" (
 
 -- Índices úteis para busca/BI (opcional)
 CREATE INDEX IF NOT EXISTS idx_anuncio_scrape ON b_silver."T_DIM_ANUNCIO"(scrape_id);
+
+
+
+CREATE SCHEMA IF NOT EXISTS b_silver;
+
+CREATE TABLE IF NOT EXISTS b_silver."T_DIM_LOCALIZACAO" (
+  -- Surrogate key da Silver: gerada no banco
+  id_localizacao BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+  -- Relacionamento 1:1 com ANÚNCIO
+  fk_anuncio     BIGINT NOT NULL,
+
+  -- Endereços / localização
+  street           TEXT,
+  city             TEXT,
+  state            TEXT,              -- ex: "RJ"
+  zipcode          TEXT,              -- manter TEXT por causa de hífen/zeros à esquerda
+  market           TEXT,
+  smart_location   TEXT,
+  country_code     CHAR(2),           -- "BR"
+  country          TEXT,
+  latitude         NUMERIC(9,6),      -- ~±DD.DDDDDD
+  longitude        NUMERIC(9,6),      -- ~±DDD.DDDDDD
+  is_location_exact BOOLEAN,          -- pode ficar NULL se desconhecido
+  neighbourhood    TEXT,
+  regiao_adm       TEXT,
+  rp               TEXT,
+
+  -- Distâncias em km
+  dist_cristo_redentor_km      NUMERIC(10,4),
+  dist_pao_de_acucar_km        NUMERIC(10,4),
+  dist_praia_de_copacabana_km  NUMERIC(10,4),
+  dist_praia_de_ipanema_km     NUMERIC(10,4),
+  dist_maracana_km             NUMERIC(10,4),
+  dist_arcos_da_lapa_km        NUMERIC(10,4),
+  dist_museu_do_amanha_km      NUMERIC(10,4),
+  dist_jardim_botanico_km      NUMERIC(10,4),
+
+  nearest_poi_km    NUMERIC(10,4),
+  nearest_poi_name  TEXT,
+
+  -- Auditoria
+  fonte        TEXT DEFAULT 'Airbnb_bronze',
+  dt_ingestao  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+
+  -- Regras de qualidade (opcionais, mas ajudam)
+  CONSTRAINT ck_state_len        CHECK (state IS NULL OR char_length(state) <= 3),
+  CONSTRAINT ck_country_code_len CHECK (country_code IS NULL OR char_length(country_code) = 2),
+  CONSTRAINT ck_lat_range        CHECK (latitude  IS NULL OR (latitude  BETWEEN -90  AND 90)),
+  CONSTRAINT ck_lon_range        CHECK (longitude IS NULL OR (longitude BETWEEN -180 AND 180)),
+  CONSTRAINT ck_dists_nonneg     CHECK (
+    COALESCE(dist_cristo_redentor_km,0)     >= 0 AND
+    COALESCE(dist_pao_de_acucar_km,0)       >= 0 AND
+    COALESCE(dist_praia_de_copacabana_km,0) >= 0 AND
+    COALESCE(dist_praia_de_ipanema_km,0)    >= 0 AND
+    COALESCE(dist_maracana_km,0)            >= 0 AND
+    COALESCE(dist_arcos_da_lapa_km,0)       >= 0 AND
+    COALESCE(dist_museu_do_amanha_km,0)     >= 0 AND
+    COALESCE(dist_jardim_botanico_km,0)     >= 0 AND
+    COALESCE(nearest_poi_km,0)              >= 0
+  )
+);
+
+-- FK para Anúncio (ajuste o schema/nome da PK de anúncio se necessário)
+ALTER TABLE b_silver."T_DIM_LOCALIZACAO"
+  ADD CONSTRAINT fk_localizacao_anuncio
+  FOREIGN KEY (fk_anuncio)
+  REFERENCES b_silver."T_DIM_ANUNCIO"(id_anuncio)
+  ON UPDATE CASCADE ON DELETE CASCADE;
+
+-- 1:1 com anúncio
+CREATE UNIQUE INDEX IF NOT EXISTS ux_localizacao_fk_anuncio
+  ON b_silver."T_DIM_LOCALIZACAO"(fk_anuncio);
+
+-- Índices de consulta
+CREATE INDEX IF NOT EXISTS ix_localizacao_city           ON b_silver."T_DIM_LOCALIZACAO"(city);
+CREATE INDEX IF NOT EXISTS ix_localizacao_state          ON b_silver."T_DIM_LOCALIZACAO"(state);
+CREATE INDEX IF NOT EXISTS ix_localizacao_neighbourhood  ON b_silver."T_DIM_LOCALIZACAO"(neighbourhood);
+CREATE INDEX IF NOT EXISTS ix_localizacao_regiao_adm     ON b_silver."T_DIM_LOCALIZACAO"(regiao_adm);
+CREATE INDEX IF NOT EXISTS ix_localizacao_rp             ON b_silver."T_DIM_LOCALIZACAO"(rp);
+CREATE INDEX IF NOT EXISTS ix_localizacao_poi_name       ON b_silver."T_DIM_LOCALIZACAO"(nearest_poi_name);
