@@ -8,6 +8,9 @@ FROM b_silver."T_FATO_PRECIFICACAO" prc
 JOIN b_silver."T_DIM_LOCALIZACAO" loc
   ON prc.fk_anuncio = loc.fk_anuncio
 WHERE prc.price BETWEEN 30 AND 3000
+AND loc.neighbourhood IS NOT NULL
+AND TRIM(loc.neighbourhood) <> ''
 GROUP BY loc.neighbourhood
-ORDER BY preco_medio DESC;
+ORDER BY preco_medio DESC
+LIMIT 10;
 
