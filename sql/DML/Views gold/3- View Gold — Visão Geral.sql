@@ -5,6 +5,7 @@ SELECT
     ROUND(AVG(NULLIF(prc.price, 0)), 2) AS preco_medio_geral,
     MIN(NULLIF(prc.price, 0)) AS preco_minimo,
     MAX(NULLIF(prc.price, 0)) AS preco_maximo
-FROM b_silver."T_FATO_PRECIFICACAO" prc;
+FROM b_silver."T_FATO_PRECIFICACAO" prc
+WHERE prc.price BETWEEN 30 AND 3000
 
 
