@@ -57,20 +57,17 @@ graph TD
 airbnb-analytics-dw/
 ├── dados/
 │   └── row/ 
-│   └── exemplo_amostra.csv                     # Arquivos originais CSV
+│   └── exemplo_amostra.csv      # Arquivos originais CSV
 ├── scripts/
 │   └── extract_load_csv.py      # Script de ingestão com Python
 │   └── .env                     # Credenciais de conexao com banco de dados
 ├── sql/
-│   ├── ddl/                      # Criação de tabelas (Bronze/Silver/Gold)
-│        └── 1_DDL_CRIACAO_DE_SCHEMAS_BRONZE_SILVER_GOLD
-│        └── 2_DDL_CRIACAO_TABELAS_BRONZE
-│        └── 2_DDL_CRIACAO_TABELAS_BRONZE│
-│   ├── dml/                      # Scripts de transformação SQL
-│   └── consultas/                # SQL para análises
+│   ├── DDL
+│   ├── DML/                      # Criação de tabelas (Bronze/Silver/Gold)
+│   ├── MODELAGEM_LOGICA_DIMENCIONAL/
 ├── powerbi/
 │   └── dashboard.pbix            # Dashboard final em Power BI
-├── notebooks/                    # (Opcional) Jupyter para exploração
+├── notebooks/                    # Jupyter para exploração
 ├── .env                          # Variáveis de conexão com o banco
 └── README.md
 ```
@@ -90,22 +87,31 @@ airbnb-analytics-dw/
 ## 🧪 Exemplo de Query SQL
 
 ```sql
--- Top 10 bairros com maior preço médio de diária
-SELECT 
-  bairro, 
-  ROUND(AVG(preco), 2) AS media_preco
-FROM gold_fato_precificacao
-JOIN gold_dim_localizacao USING(fk_anuncio)
-GROUP BY bairro
-ORDER BY media_preco DESC
-LIMIT 10;
+-- Preço medio por bairro, propriedade e tipo de quarto
+SELECT
+	loc.neighbourhood AS bairro,
+	prop.property_type_std AS propriedade,
+	prop.room_type_std,
+	COUNT(*) AS qtde,
+	ROUND(AVG(NULLIF(prc.price, 0)):: numeric, 2) AS preco_medio
+FROM b_silver."T_DIM_LOCALIZACAO" AS loc
+JOIN b_silver."T_DIM_PROPRIEDADE" AS prop
+  ON prop.fk_anuncio = loc.fk_anuncio
+JOIN b_silver."T_FATO_PRECIFICACAO" AS prc
+  ON prc.fk_anuncio = loc.fk_anuncio
+WHERE loc.neighbourhood IS NOT NULL 
+  AND prc.price BETWEEN 30 AND 3000
+GROUP BY loc.neighbourhood, prop.property_type_std, prop.room_type_std
+HAVING COUNT(*) >=10
+ORDER BY bairro, preco_medio DESC;
 ```
 
 ---
 
 ## 📊 Dashboard no Power BI
 
-> *[Adicione aqui o link ou print do Power BI assim que estiver pronto]*
+> *<img width="1727" height="840" alt="image" src="https://github.com/user-attachments/assets/dff1db4f-c94e-4a0f-bbd8-8feec690f109" />
+*
 
 ### KPIs e Visões:
 - Preço médio por bairro e tipo de acomodação.
